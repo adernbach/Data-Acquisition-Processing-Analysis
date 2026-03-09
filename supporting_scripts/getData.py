@@ -12,10 +12,12 @@ pd.options.mode.chained_assignment = None
 
 def getSNOTELData(SiteName, SiteID, StateAbb, StartDate, EndDate, OutputFolder):
     #the api changed and we need to pull the site id out - 3-1-2026
+    #truncate state abb to only the first two letters
+    state_abbr = StateAbb[:2]
     site_id = SiteID.split('_')[0]
     url1 = 'https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customMultiTimeSeriesGroupByStationReport/daily/start_of_period/'
     #url2 = f'{SiteID}:{StateAbb}:SNTL%7Cid=%22%22%7Cname/'
-    url2 = f'{site_id}:{StateAbb}:SNTL%7Cid=%22%22%7Cname/'
+    url2 = f'{site_id}:{state_abbr}:SNTL%7Cid=%22%22%7Cname/'
     url3 = f'{StartDate},{EndDate}/'
     url4 = 'WTEQ::value?fitToScreen=false'
     url = url1+url2+url3+url4
@@ -42,7 +44,7 @@ def getSNOTELData(SiteName, SiteID, StateAbb, StartDate, EndDate, OutputFolder):
     df.iloc[:, 1:] = df.iloc[:, 1:].apply(lambda x: pd.to_numeric(x) * 0.0254)  # convert in to m
     df['Water_Year'] = pd.to_datetime(df['Date']).map(lambda x: x.year+1 if x.month>9 else x.year)
 
-    df.to_csv(f'./{OutputFolder}/df_{SiteID}_{StateAbb}_SNTL.csv', index=False)
+    df.to_csv(f'./{OutputFolder}/df_{SiteID}_{state_abbr}_SNTL.csv', index=False)
 
 def getCaliSNOTELData(SiteName, SiteID, StartDate, EndDate, OutputFolder):
     StateAbb = 'Ca'
